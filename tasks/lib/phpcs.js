@@ -104,23 +104,31 @@ exports.init = function(grunt) {
      * @param Object runner
      */
     exports.setup = function(runner) {
+        config = runner.options(defaults);
 
-        var dir = path.normalize(runner.data.dir),
-            attr;
-        config  = runner.options(defaults);
+        // Merge task options
+        Object.keys(runner.data).forEach(function(key) {
+            config[key] = runner.data[key];
+        });
 
+        // Get directory from config
+        var dir = path.normalize(config.dir);
+        delete config.dir;
+
+        // Merge command line args
+        var attr;
         for (attr in cliOptions) {
-            if (cliOptions[attr] !== undefined) { 
+            if (cliOptions[attr] !== undefined) {
                 config[attr] = cliOptions[attr];
             }
         }
 
-        cmd     = buildCommand(dir) + ' ' + dir;
+        cmd = buildCommand(dir) + ' ' + dir;
 
         grunt.log.writeln('Starting phpcs (target: ' + runner.target.cyan + ') in ' + dir.cyan);
         grunt.verbose.writeln('Exec: ' + cmd);
 
-        done    = runner.async();
+        done = runner.async();
     };
 
     /**
